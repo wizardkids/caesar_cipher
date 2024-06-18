@@ -40,6 +40,18 @@ METHODS: list[str] = ["deque", "modular"]
 @click.option('-e', '--encrypt', is_flag=True, default=False, help="Encrypt [MESSAGE]")
 @click.option('-d', '--decrypt', is_flag=True, default=False, help="Decrypt an encrypted [MESSAGE]")
 def cli(message: str, file: str, method: str, rotate: int, encrypt: bool, decrypt: bool) -> None:
+    """
+    Main organizing function for the CLI.
+
+    Parameters
+    ----------
+    message : str -- message on command line to encrypt
+    file : str -- file containing a message to encrypt
+    method : str -- True to use deque method; False to use modular method
+    rotate : int -- "distance" to rotate alphabet
+    encrypt : bool -- True if user wants to encrypt a message
+    decrypt : bool -- True if user wants to decrypt "encrypted.txt"
+    """
 
     print()
     ic(message)
@@ -94,6 +106,13 @@ def cli(message: str, file: str, method: str, rotate: int, encrypt: bool, decryp
 
 
 def get_encrypted_text() -> str:
+    """
+    Read contents of "encrypted.txt". All encrypted text is saved in that file, so decryption always retrieves that ciphertext.
+
+    Returns
+    -------
+    str -- the encrypted contents of "encrypted.txt"
+    """
     with open('encrypted.txt', 'r', encoding="utf-8") as f:
         all_lines: list[str] = f.readlines()
     message: list[str] = [line.strip('\n') for line in all_lines]
@@ -131,6 +150,15 @@ def caesar_deque(text: str, r: int) -> str:
     """
     Get a list of indexes for all the characters in "text".
     Rotate the alphabet and then use those indexes to get the corresponding letter in the rotated alphabet.
+
+    Parameters
+    ----------
+    text : str -- text to encrypt or decrypt
+    r : int -- distance to rotate alphabet
+
+    Returns
+    -------
+    str -- encrypted or decrypted text
     """
     rotated: deque[str] = ALPHABET.copy()
     rotated.rotate(r)
@@ -156,6 +184,18 @@ def caesar_deque(text: str, r: int) -> str:
 
 
 def caesar_mod(text: str, r: int) -> str:
+    """
+    Use modular arithmetic to get the rotated character.
+
+    Parameters
+    ----------
+    text : str -- text to encrypt or decrypt
+    r : int -- distance to rotate alphabet
+
+    Returns
+    -------
+    str -- encrypted or decrypted text
+    """
 
     char_list: list[str] = []
     for c in text:
@@ -174,30 +214,6 @@ def caesar_mod(text: str, r: int) -> str:
             char_list.append(ALPHABET[ndx])
 
     return "".join(char_list)
-
-
-# def main_deque(plaintext) -> None:
-
-#     r = -3  # negative rotates to the right a --> d
-
-#     ciphertext: str = caesar_deque(plaintext, r)
-#     print(plaintext)
-#     print(ciphertext)
-
-#     decrypttext: str = caesar_deque(ciphertext, -r)
-#     print(decrypttext)
-
-
-# def main_mod(plaintext) -> None:
-
-#     r = -3  # negative rotates to the right a --> d
-
-#     ciphertext: str = caesar_mod(plaintext, r)
-#     print(plaintext)
-#     print(ciphertext)
-
-#     decrypttext: str = caesar_mod(ciphertext, -r)
-#     print(decrypttext)
 
 
 if __name__ == '__main__':

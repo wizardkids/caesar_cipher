@@ -51,13 +51,17 @@ def cli(message: str, file: str, method: str, rotate: int, encrypt: bool, decryp
     if file:
         message: str = get_text(file)
 
-    if not message:
-        print("There is no text to decrypt.")
+    if not message and encrypt:
+        print("There is no text to encrypt.")
         exit()
 
     if encrypt and decrypt:
         print("Cannot encrypt and decrypt in one operation.")
         exit()
+
+    # If neither --encrypt nor --decrypt was set, then encrypt by default.
+    if not decrypt and not encrypt:
+        encrypt = True
 
     if encrypt and method == 'deque':
         encrypted_text: str = caesar_deque(message, rotate)
@@ -71,18 +75,27 @@ def cli(message: str, file: str, method: str, rotate: int, encrypt: bool, decryp
 
     elif decrypt and method == "deque":
         rotate *= -1
+        message: str = get_encrypted_text()
         decrypted_text: str = caesar_deque(message, rotate)
         with open('decrypted.txt', 'w', encoding='utf-8') as f:
             f.write(decrypted_text)
 
     elif decrypt and method == "modular":
         rotate *= -1
+        message: str = get_encrypted_text()
         decrypted_text: str = caesar_mod(message, rotate)
         with open('decrypted.txt', 'w', encoding='utf-8') as f:
             f.write(decrypted_text)
 
     else:
         pass
+
+
+def get_encrypted_text() -> str:
+    with open('encrypted.txt', 'r', encoding="utf-8") as f:
+        all_lines: list[str] = f.readlines()
+    message: list[str] = [line.strip('\n') for line in all_lines]
+    return "".join(message)
 
 
 def get_text(file: str) -> str:
@@ -121,6 +134,7 @@ def caesar_deque(text: str, r: int) -> str:
     rotated.rotate(r)
 
     char_list: list[str] = []
+    ic(text)
     for c in text:
         c_lower: str = c.lower()
         if c_lower not in ALPHABET:
@@ -131,10 +145,17 @@ def caesar_deque(text: str, r: int) -> str:
         ndx: int = ALPHABET.index(c_lower)
 
         # Re-capitalize the letter, if the original was a capital.
-        if ord(c) < 97:
+        if ord(c) < 97 and ord(c) > 32:
             char_list.append(rotated[ndx].upper())
         else:
             char_list.append(rotated[ndx])
+
+        # ic(c)
+        # ic(ndx)
+        # ic(ALPHABET[ndx])
+        # ic(ord(c))
+        # print("".join(char_list))
+        # print()
 
     return "".join(char_list)
 

@@ -3,20 +3,20 @@
      Version: 0.1
       Author: Richard E. Rawson
         Date: 2023-04-30
- Description: A Caesar cipher involves shifting each character in a plaintext by three letters forward. Non-ASCII characters will be ignored.
+ Description: A Caesar cipher involves shifting each character in a plaintext by n letters. Non-ASCII characters will be ignored. Historically, n = 3 but in this program, n can be any integer value.
 
 a -> d, b -> e, c -> f, etc...at the end of the alphabet, the cipher mapping wraps around the end, so:
 
-x -> a, y -> b, z -> c.for example, encrypting 'python' using a caesar cipher gives:
+x -> a, y -> b, z -> c.for example, encrypting 'python' using a caesar cipher with rotation = 3 gives:
 
 python
 ||||||
 sbwkrq
 
 We use two methods of finding the cipher text:
-    1. deque allows us to actually rotate the alphabet. Then, using the index of the given letter in the alphabet, use the letter at the same index in the rotated alphabet.
+    1. deque provides methods for rotating a list, such as the alphabet. Then, using the index of the given letter in the alphabet, use the letter at the same index in the rotated alphabet.
 
-    2. Modular arithmetic: Find the index of the letter and add r (the amount of rotation). This addition may result in an index greater than 26 (the number of letters in the alphabet). So, use ndx % 26 to find the "wrapped" index. Using r > 25 makes no sense since r = 26 is the same as not wrapping and r = 27 and r = 79 are both the same as r = 1.
+    2. Modular arithmetic: Find the index of the letter and add r (the amount of rotation). This addition may result in an index greater than 26 (the number of letters in the alphabet). So, use ndx % 26 to find the "wrapped" index.
 
 With both methods, any characters except spaces not included in ascii_lowercase (such as puncuation or unicode like é) are retained as-is.
 """
@@ -32,7 +32,7 @@ ALPHABET = deque(ascii_lowercase + " ")
 METHODS: list[str] = ["deque", "modular"]
 
 
-@click.command(help="Provide either a file or a [MESSAGE] to encrypt. Decrypt the encrypted message in \"encrypted.txt\".", epilog="Any text file can be encrypted. Encrypted text is saved in \"encrypted.txt\" and decrypted text is saved in \"decrypted.txt\". Encryption and decryption use the same value for \"rotate\". To decrypt a message previously encrypted, only change --encrypt to --decrypt.\n\nEXAMPLE USAGE\n\ncaesar_crypto.py \"The boats launch at midnight.\" --> encrypts the message\n\ncaesar_crypto.py -d --> decrypts contents of \"encrypted.txt\"")
+@click.command(help="Provide either a file or a [MESSAGE] to encrypt. Decrypt the encrypted message in \"encrypted.txt\".", epilog="Encrypted text is saved in \"encrypted.txt\" and decrypted text is saved in \"decrypted.txt\". Encryption and decryption use the same value for \"rotate\". If any value other than the default of 3 is used for --rotate, then the --rotate value must be included in BOTH encryption and decryption. To decrypt a message previously encrypted, only change --encrypt to --decrypt.\n\nEXAMPLE USAGE\n\ncaesar_crypto.py -r 15 \"The boats launch at midnight.\" --> encrypts the message\n\ncaesar_crypto.py -r 15 -d --> decrypts contents of \"encrypted.txt\"")
 @click.argument("message", type=str, required=False)
 @click.option("-f", "--file", type=click.Path(exists=False), help='File to encrypt.')
 @click.option('-m', '--method', type=click.Choice(METHODS), default="deque", help="Choose an encryption method.")
@@ -53,14 +53,14 @@ def cli(message: str, file: str, method: str, rotate: int, encrypt: bool, decryp
     decrypt : bool -- True if user wants to decrypt "encrypted.txt"
     """
 
-    print()
-    ic(message)
-    ic(file)
-    ic(method)
-    ic(type(rotate), rotate)
-    ic(encrypt)
-    ic(decrypt)
-    print()
+    # print()
+    # ic(message)
+    # ic(file)
+    # ic(method)
+    # ic(type(rotate), rotate)
+    # ic(encrypt)
+    # ic(decrypt)
+    # print()
 
     if file:
         message: str = get_text(file)

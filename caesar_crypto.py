@@ -17,6 +17,8 @@ We use two methods of finding the cipher text:
     1. deque allows us to actually rotate the alphabet. Then, using the index of the given letter in the alphabet, use the letter at the same index in the rotated alphabet.
 
     2. Modular arithmetic: Find the index of the letter and add r (the amount of rotation). This addition may result in an index greater than 26 (the number of letters in the alphabet). So, use ndx % 26 to find the "wrapped" index. Using r > 25 makes no sense since r = 26 is the same as not wrapping and r = 27 and r = 79 are both the same as r = 1.
+
+With both methods, any characters except spaces not included in ascii_lowercase (such as puncuation or unicode like é) are retained as-is.
 """
 
 from collections import deque
@@ -30,7 +32,7 @@ ALPHABET = deque(ascii_lowercase + " ")
 METHODS: list[str] = ["deque", "modular"]
 
 
-@click.command(help="Provide either a file or a [MESSAGE] to encrypt. Decrypt the encrypted message in \"encrypted.txt\".", epilog="Any text file can be encrypted. Encrypted text is saved in \"encrypted.txt\" and decrypted text is saved in \"decrypted.txt\". Encryption and decryption use the same value for \"rotate\". To decrypt a message previously encrypted, only change --encrypt to --decrypt.")
+@click.command(help="Provide either a file or a [MESSAGE] to encrypt. Decrypt the encrypted message in \"encrypted.txt\".", epilog="Any text file can be encrypted. Encrypted text is saved in \"encrypted.txt\" and decrypted text is saved in \"decrypted.txt\". Encryption and decryption use the same value for \"rotate\". To decrypt a message previously encrypted, only change --encrypt to --decrypt.\n\nEXAMPLE USAGE\n\ncaesar_crypto.py \"The boats launch at midnight.\" --> encrypts the message\n\ncaesar_crypto.py -d --> decrypts contents of \"encrypted.txt\"")
 @click.argument("message", type=str, required=False)
 @click.option("-f", "--file", type=click.Path(exists=False), help='File to encrypt.')
 @click.option('-m', '--method', type=click.Choice(METHODS), default="deque", help="Choose an encryption method.")
@@ -150,20 +152,13 @@ def caesar_deque(text: str, r: int) -> str:
         else:
             char_list.append(rotated[ndx])
 
-        # ic(c)
-        # ic(ndx)
-        # ic(ALPHABET[ndx])
-        # ic(ord(c))
-        # print("".join(char_list))
-        # print()
-
     return "".join(char_list)
 
 
-def caesar_mod(plaintext, r) -> str:
+def caesar_mod(text: str, r: int) -> str:
 
     char_list: list[str] = []
-    for c in plaintext:
+    for c in text:
         c_lower: str = c.lower()
 
         if c_lower not in ALPHABET:
@@ -173,7 +168,7 @@ def caesar_mod(plaintext, r) -> str:
         ndx: int = (ALPHABET.index(c_lower) - r) % 27
 
         # Re-capitalize the letter, if the original was a capital.
-        if ord(c) < 97:
+        if ord(c) < 97 and ord(c) > 32:
             char_list.append(ALPHABET[ndx].upper())
         else:
             char_list.append(ALPHABET[ndx])
@@ -181,28 +176,28 @@ def caesar_mod(plaintext, r) -> str:
     return "".join(char_list)
 
 
-def main_deque(plaintext) -> None:
+# def main_deque(plaintext) -> None:
 
-    r = -3  # negative rotates to the right a --> d
+#     r = -3  # negative rotates to the right a --> d
 
-    ciphertext: str = caesar_deque(plaintext, r)
-    print(plaintext)
-    print(ciphertext)
+#     ciphertext: str = caesar_deque(plaintext, r)
+#     print(plaintext)
+#     print(ciphertext)
 
-    decrypttext: str = caesar_deque(ciphertext, -r)
-    print(decrypttext)
+#     decrypttext: str = caesar_deque(ciphertext, -r)
+#     print(decrypttext)
 
 
-def main_mod(plaintext) -> None:
+# def main_mod(plaintext) -> None:
 
-    r = -3  # negative rotates to the right a --> d
+#     r = -3  # negative rotates to the right a --> d
 
-    ciphertext: str = caesar_mod(plaintext, r)
-    print(plaintext)
-    print(ciphertext)
+#     ciphertext: str = caesar_mod(plaintext, r)
+#     print(plaintext)
+#     print(ciphertext)
 
-    decrypttext: str = caesar_mod(ciphertext, -r)
-    print(decrypttext)
+#     decrypttext: str = caesar_mod(ciphertext, -r)
+#     print(decrypttext)
 
 
 if __name__ == '__main__':

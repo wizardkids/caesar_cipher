@@ -20,11 +20,96 @@ We use two methods of finding the cipher text:
 """
 
 from collections import deque
+from pathlib import Path
 from string import ascii_lowercase
 
+import click
 from icecream import ic
 
 ALPHABET = deque(ascii_lowercase + " ")
+METHODS: list[str] = ["deque", "modular"]
+
+
+@click.command(help="Provide either a file or a [MESSAGE] to encrypt. Decrypt the encrypted message in \"encrypted.txt\".", epilog="Any text file can be encrypted. Encrypted text is saved in \"encrypted.txt\" and decrypted text is saved in \"decrypted.txt\". Encryption and decryption use the same value for \"rotate\". To decrypt a message previously encrypted, only change --encrypt to --decrypt.")
+@click.argument("message", type=str, required=False)
+@click.option("-f", "--file", type=click.Path(exists=False), help='File to encrypt.')
+@click.option('-m', '--method', type=click.Choice(METHODS), default="deque", help="Choose an encryption method.")
+@click.option('-r', '--rotate', type=int, default="3", help="Distance to rotate.")
+@click.option('-e', '--encrypt', is_flag=True, default=False, help="Encrypt [MESSAGE]")
+@click.option('-d', '--decrypt', is_flag=True, default=False, help="Decrypt an encrypted [MESSAGE]")
+def cli(message: str, file: str, method: str, rotate: int, encrypt: bool, decrypt: bool) -> None:
+
+    print()
+    ic(message)
+    ic(file)
+    ic(method)
+    ic(type(rotate), rotate)
+    ic(encrypt)
+    ic(decrypt)
+    print()
+
+    if file:
+        message: str = get_text(file)
+
+    if not message:
+        print("There is no text to decrypt.")
+        exit()
+
+    if encrypt and decrypt:
+        print("Cannot encrypt and decrypt in one operation.")
+        exit()
+
+    if encrypt and method == 'deque':
+        encrypted_text: str = caesar_deque(message, rotate)
+        with open('encrypted.txt', 'w', encoding='utf-8') as f:
+            f.write(encrypted_text)
+
+    elif encrypt and method == 'modular':
+        encrypted_text: str = caesar_mod(message, rotate)
+        with open('encrypted.txt', 'w', encoding='utf-8') as f:
+            f.write(encrypted_text)
+
+    elif decrypt and method == "deque":
+        rotate *= -1
+        decrypted_text: str = caesar_deque(message, rotate)
+        with open('decrypted.txt', 'w', encoding='utf-8') as f:
+            f.write(decrypted_text)
+
+    elif decrypt and method == "modular":
+        rotate *= -1
+        decrypted_text: str = caesar_mod(message, rotate)
+        with open('decrypted.txt', 'w', encoding='utf-8') as f:
+            f.write(decrypted_text)
+
+    else:
+        pass
+
+
+def get_text(file: str) -> str:
+    """
+    Given a file name, read the text into a single string.
+
+    Parameters
+    ----------
+    file : str -- file containing text to be encrypted
+
+    Returns
+    -------
+    str -- text in file
+    """
+
+    filename: Path = Path(file)
+    if filename.exists():
+        with open(filename, 'r', encoding='utf-8') as f:
+            text: list[str] = f.readlines()
+
+        text = [x.strip('\n') for x in text]
+
+        return "".join(text)
+
+    else:
+        print(f'Could not find {file}.')
+        exit()
 
 
 def caesar_deque(text: str, r: int) -> str:
@@ -105,10 +190,13 @@ if __name__ == '__main__':
 
     plaintext = "Hello world"
 
-    print("\nUSING DEQUE TO DO THE ROTATION.")
-    main_deque(plaintext)
+    # print("\nUSING DEQUE TO DO THE ROTATION.")
+    # main_deque(plaintext)
 
-    print()
+    # print()
 
-    print('USING MODULAR ARITHMETIC TO DO THE ROTATION.')
-    main_mod(plaintext)
+    # print('USING MODULAR ARITHMETIC TO DO THE ROTATION.')
+    # main_mod(plaintext)
+
+    pass
+    cli()

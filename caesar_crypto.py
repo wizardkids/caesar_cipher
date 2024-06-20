@@ -219,5 +219,5 @@ if __name__ == '__main__':
 
     plaintext = "Hello world"
 
-    pass
+    print()
     cli()

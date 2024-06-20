@@ -21,6 +21,8 @@ We use two methods of finding the cipher text:
     2. Modular arithmetic: Find the index of the letter and add r (the amount of rotation). This addition may result in an index greater than 27 (the number of letters in the alphabet, plus space). So, use ndx % 27 to find the "wrapped" index.
 
 With both methods, any characters, except spaces, not included in ascii_lowercase or ascii_uppercase (such as puncuation or unicode like é) are retained as-is.
+
+This is a change to dev.
 """
 
 from collections import deque

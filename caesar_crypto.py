@@ -3,22 +3,24 @@
      Version: 0.1
       Author: Richard E. Rawson
         Date: 2023-04-30
- Description: A Caesar cipher involves shifting each character in a plaintext by n letters. Non-ASCII characters will be ignored. Historically, n = 3 but in this program, n can be any integer value.
+ Description: A Caesar cipher involves shifting each character in a plaintext by n letters. Non-ASCII characters will be ignored. Historically, n = -3 but in this program, n can be any integer value.
 
 a -> d, b -> e, c -> f, etc...at the end of the alphabet, the cipher mapping wraps around the end, so:
 
-x -> a, y -> b, z -> c.for example, encrypting 'python' using a caesar cipher with rotation = 3 gives:
+x -> a, y -> b, z -> c.for example, encrypting 'python' using a caesar cipher with rotation = -3 gives:
 
 python
 ||||||
 sbwkrq
 
+Negative rotation values rotate the alphabet to the right (a becomes d), and positive values rotate left (a becomes y). Using values greater than 27 has no real purpose since a rotation value of, say 28, is the same as a rotation value of 1.
+
 We use two methods of finding the cipher text:
     1. deque provides methods for rotating a list, such as the alphabet. Then, using the index of the given letter in the alphabet, use the letter at the same index in the rotated alphabet.
 
-    2. Modular arithmetic: Find the index of the letter and add r (the amount of rotation). This addition may result in an index greater than 26 (the number of letters in the alphabet). So, use ndx % 26 to find the "wrapped" index.
+    2. Modular arithmetic: Find the index of the letter and add r (the amount of rotation). This addition may result in an index greater than 27 (the number of letters in the alphabet, plus space). So, use ndx % 27 to find the "wrapped" index.
 
-With both methods, any characters except spaces not included in ascii_lowercase (such as puncuation or unicode like é) are retained as-is.
+With both methods, any characters, except spaces, not included in ascii_lowercase or ascii_uppercase (such as puncuation or unicode like é) are retained as-is.
 """
 
 from collections import deque
@@ -32,13 +34,13 @@ ALPHABET = deque(ascii_lowercase + " ")
 METHODS: list[str] = ["deque", "modular"]
 
 
-@click.command(help="Provide either a file or a [MESSAGE] to encrypt. Decrypt the encrypted message in \"encrypted.txt\".", epilog="Encrypted text is saved in \"encrypted.txt\" and decrypted text is saved in \"decrypted.txt\". Encryption and decryption use the same value for \"rotate\". If any value other than the default of 3 is used for --rotate, then the --rotate value must be included in BOTH encryption and decryption. To decrypt a message previously encrypted, only change --encrypt to --decrypt.\n\nEXAMPLE USAGE\n\ncaesar_crypto.py -r 15 \"The boats launch at midnight.\" --> encrypts the message\n\ncaesar_crypto.py -r 15 -d --> decrypts contents of \"encrypted.txt\"")
+@click.command(help="Provide either a file or a [MESSAGE] to encrypt. Decrypt the encrypted message in \"encrypted.txt\".", epilog="Encrypted text is saved in \"encrypted.txt\" and decrypted text is saved in \"decrypted.txt\". Encryption and decryption MUST use the same value for \"rotate\". If any value other than the default of 3 is used for --rotate, then the --rotate value must be included in BOTH encryption and decryption. To decrypt a message previously encrypted, only change --encrypt to --decrypt.\n\nEXAMPLE USAGE\n\ncaesar_crypto.py -r 15 \"The boats launch at midnight.\" --> encrypts the message\n\ncaesar_crypto.py -r 15 -d --> decrypts contents of \"encrypted.txt\"")
 @click.argument("message", type=str, required=False)
 @click.option("-f", "--file", type=click.Path(exists=False), help='File to encrypt.')
-@click.option('-m', '--method', type=click.Choice(METHODS), default="deque", help="Choose an encryption method.")
-@click.option('-r', '--rotate', type=int, default="3", help="Distance to rotate.")
-@click.option('-e', '--encrypt', is_flag=True, default=False, help="Encrypt [MESSAGE]")
-@click.option('-d', '--decrypt', is_flag=True, default=False, help="Decrypt an encrypted [MESSAGE]")
+@click.option('-m', '--method', type=click.Choice(METHODS), default="deque", show_default=True, help="Choose an encryption method.")
+@click.option('-r', '--rotate', type=int, default="3", show_default=True, help="\"Distance\" to rotate.")
+@click.option('-e', '--encrypt', is_flag=True, default=False, help="Encrypt [MESSAGE].")
+@click.option('-d', '--decrypt', is_flag=True, default=False, help="Decrypt an encrypted [MESSAGE].")
 def cli(message: str, file: str, method: str, rotate: int, encrypt: bool, decrypt: bool) -> None:
     """
     Main organizing function for the CLI.
@@ -52,15 +54,6 @@ def cli(message: str, file: str, method: str, rotate: int, encrypt: bool, decryp
     encrypt : bool -- True if user wants to encrypt a message
     decrypt : bool -- True if user wants to decrypt "encrypted.txt"
     """
-
-    # print()
-    # ic(message)
-    # ic(file)
-    # ic(method)
-    # ic(type(rotate), rotate)
-    # ic(encrypt)
-    # ic(decrypt)
-    # print()
 
     if file:
         message: str = get_text(file)
@@ -113,9 +106,12 @@ def get_encrypted_text() -> str:
     -------
     str -- the encrypted contents of "encrypted.txt"
     """
+
     with open('encrypted.txt', 'r', encoding="utf-8") as f:
         all_lines: list[str] = f.readlines()
+
     message: list[str] = [line.strip('\n') for line in all_lines]
+
     return "".join(message)
 
 
@@ -160,6 +156,7 @@ def caesar_deque(text: str, r: int) -> str:
     -------
     str -- encrypted or decrypted text
     """
+
     rotated: deque[str] = ALPHABET.copy()
     rotated.rotate(r)
 
@@ -221,14 +218,6 @@ if __name__ == '__main__':
     plaintext = "In the café, the bánh mì sandwich is a popular choice among the regulars. The flaky baguette, stuffed with savory grilled pork, pickled daikon and carrots, fresh cilantro, and a dollop of sriracha mayo, is the perfect lunchtime indulgence. As I sipped my matcha latte, I noticed the barista's shirt had a cute ねこ (neko, or cat) graphic on it. It reminded me of the time I visited Tokyo and saw the famous 東京タワー (Tokyo Tower) at night, aglow with colorful lights. The world is full of unique and beautiful symbols, and Unicode makes it possible to express them all in one cohesive language."
 
     plaintext = "Hello world"
-
-    # print("\nUSING DEQUE TO DO THE ROTATION.")
-    # main_deque(plaintext)
-
-    # print()
-
-    # print('USING MODULAR ARITHMETIC TO DO THE ROTATION.')
-    # main_mod(plaintext)
 
     pass
     cli()

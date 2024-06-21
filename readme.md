@@ -32,13 +32,17 @@ Options
 
 `caesar_crypto.py -r 5 "Hello, World!"`
 
-**Encrypt a file, using a default rotation of 3 characters:**
+> Hello, World! --> Ebiil,xTloia!
+
+**Encrypt the contents of a file, using a default rotation of 3 characters:**
 
 `caesar_crypto.py -f message.txt -e`
 
 **Decrypt the contents of encrypted.txt, created with --rotate = 5:**
 
 `caesar_crypto.py -r 5 -d`
+
+> Ebiil,xTloia! --> Hello, World!
 
 
 ## Notes

@@ -161,7 +161,6 @@ def caesar_deque(text: str, r: int) -> str:
     rotated.rotate(r)
 
     char_list: list[str] = []
-    ic(text)
     for c in text:
         c_lower: str = c.lower()
         if c_lower not in ALPHABET:

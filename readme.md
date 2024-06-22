@@ -20,7 +20,8 @@ caesar_crypto.py [OPTIONS] [MESSAGE]
 Options
 
 -f, --file: Specify a file containing the message to encrypt or decrypt.
--m, --method: Choose the encryption method (deque or modular). Default is deque.
+-m, --method: Choose the encryption method (deque or modular). Default
+              is deque.
 -r, --rotate: Specify the rotation value (shift distance). Default is 3.
 -e, --encrypt: Encrypt the provided message or file.
 -d, --decrypt: Decrypt the contents of the encrypted.txt file.

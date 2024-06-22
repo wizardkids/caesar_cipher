@@ -4,7 +4,7 @@ This Python program implements the Caesar cipher, a simple substitution cipher w
 
 ## Description
 
-The Caesar cipher is one of the earliest known and simplest ciphers. It is a type of substitution cipher where each letter in the plaintext is replaced by a letter a fixed number of positions down the alphabet. For example, with a shift of 3, A would be replaced by D, B by E, and so on.
+The Caesar cipher is one of the earliest known and simplest ciphers. It is a type of substitution cipher where each letter in the plaintext is replaced by a letter a fixed number of positions down the alphabet. For example, with a shift of -3, A would be replaced by D, B by E, and so on.
 
 This program provides two methods for implementing the Caesar cipher:
 
@@ -26,7 +26,7 @@ Options
 -d, --decrypt: Decrypt the contents of the encrypted.txt file.
 ```
 
-## Examples
+## Usage examples
 
 **Encrypt a message, rotating the alphabet by 5 characters:**
 
@@ -50,9 +50,8 @@ Options
 - The encrypted text is saved in the `encrypted.txt` file, and the decrypted text is saved in the `decrypted.txt` file.
 - Encryption and decryption must use the same value for `--rotate`.
 - If there is a `message`, but no `--encrypt` or `--decrypt` option is provided, the program defaults to encryption.
-- If there are no options provided, `encrypted.txt` is decrypted.
+- If there are no options or message provided, `encrypted.txt` is decrypted.
 - Non-ASCII characters (*e.g.*, punctuation, accented letters) are left unchanged.
 
 ## Dependencies
-- click (for command-line interface)
-- icecream (for debugging, optional)
+- [click](https://click.palletsprojects.com/en/8.1.x/) (for command-line interface)

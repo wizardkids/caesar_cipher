@@ -3,11 +3,13 @@
      Version: 0.1
       Author: Richard E. Rawson
         Date: 2023-04-30
- Description: A Caesar cipher involves shifting each character in a plaintext by n letters. Non-ASCII characters will be ignored. Historically, n = -3 but in this program, n can be any integer value.
+ Description: A Caesar cipher involves shifting each character in a plaintext by n letters. Non-ASCII characters are ignored. Historically, n = -3 but in this program, n can be any integer value.
+
+METHOD:
 
 a -> d, b -> e, c -> f, etc...at the end of the alphabet, the cipher mapping wraps around the end, so:
 
-x -> a, y -> b, z -> c.for example, encrypting 'python' using a caesar cipher with rotation = -3 gives:
+x -> a, y -> b, z -> c. For example, encrypting 'python' using a caesar cipher with rotation = -3 gives:
 
 python
 ||||||
@@ -16,7 +18,7 @@ sbwkrq
 Negative rotation values rotate the alphabet to the right (a becomes d), and positive values rotate left (a becomes y). Using values greater than 27 has no real purpose since a rotation value of, say 28, is the same as a rotation value of 1.
 
 We use two methods of finding the cipher text:
-    1. deque provides methods for rotating a list, such as the alphabet. Then, using the index of the given letter in the alphabet, use the letter at the same index in the rotated alphabet.
+    1. the collections module included the deque type with methods for rotating a list, such as the alphabet. Then, using the index of the given letter in the alphabet, use the letter at the same index in the rotated alphabet.
 
     2. Modular arithmetic: Find the index of the letter and add r (the amount of rotation). This addition may result in an index greater than 27 (the number of letters in the alphabet, plus space). So, use ndx % 27 to find the "wrapped" index.
 
@@ -28,7 +30,7 @@ from pathlib import Path
 from string import ascii_lowercase
 
 import click
-from icecream import ic
+# from icecream import ic
 
 ALPHABET = deque(ascii_lowercase + " ")
 METHODS: list[str] = ["deque", "modular"]
@@ -144,8 +146,7 @@ def get_text(file: str) -> str:
 
 def caesar_deque(text: str, r: int) -> str:
     """
-    Get a list of indexes for all the characters in "text".
-    Rotate the alphabet and then use those indexes to get the corresponding letter in the rotated alphabet.
+    Get a list of indexes for all the characters in "text". Rotate the alphabet and then use those indexes to get the corresponding letter in the rotated alphabet.
 
     Parameters
     ----------
@@ -157,11 +158,14 @@ def caesar_deque(text: str, r: int) -> str:
     str -- encrypted or decrypted text
     """
 
+    # Create a copy of ALPHABET and the rotate it "r" characters.
     rotated: deque[str] = ALPHABET.copy()
     rotated.rotate(r)
 
     char_list: list[str] = []
     for c in text:
+
+        # If this character is not in ascii_lowercase, add it to the cipher text as-is.
         c_lower: str = c.lower()
         if c_lower not in ALPHABET:
             char_list.append(c_lower)
@@ -170,7 +174,7 @@ def caesar_deque(text: str, r: int) -> str:
         # Find the index of the letter in ALPHABET.
         ndx: int = ALPHABET.index(c_lower)
 
-        # Re-capitalize the letter, if the original was a capital.
+        # Capitalize the cipher letter, if the original was a capital.
         if ord(c) < 97 and ord(c) > 32:
             char_list.append(rotated[ndx].upper())
         else:
@@ -181,7 +185,7 @@ def caesar_deque(text: str, r: int) -> str:
 
 def caesar_mod(text: str, r: int) -> str:
     """
-    Use modular arithmetic to get the rotated character.
+    Use modular arithmetic to get the rotated characters.
 
     Parameters
     ----------
@@ -195,15 +199,20 @@ def caesar_mod(text: str, r: int) -> str:
 
     char_list: list[str] = []
     for c in text:
-        c_lower: str = c.lower()
 
+        # If this character is not in ascii_lowercase, add it to the cipher text as-is.
+        c_lower: str = c.lower()
         if c_lower not in ALPHABET:
             char_list.append(c_lower)
             continue
 
+        # Get the index of the plaintext character in ALPHABET, move that value by "r".
+        # Since the resulting value could be > the length of ALPHABET find modulus 27.
+        # Example: if index of plaintext character is 26 (letter "z"), then an "r" of 2 will give us 28, which is beyond the end of ALPHABET so we need to wrap and get the letter "a".
+        # 28 mod 27 is 1 --> "a"
         ndx: int = (ALPHABET.index(c_lower) - r) % 27
 
-        # Re-capitalize the letter, if the original was a capital.
+        # Capitalize the cipher letter, if the original was a capital.
         if ord(c) < 97 and ord(c) > 32:
             char_list.append(ALPHABET[ndx].upper())
         else:
@@ -213,10 +222,5 @@ def caesar_mod(text: str, r: int) -> str:
 
 
 if __name__ == '__main__':
-
-    plaintext = "In the café, the bánh mì sandwich is a popular choice among the regulars. The flaky baguette, stuffed with savory grilled pork, pickled daikon and carrots, fresh cilantro, and a dollop of sriracha mayo, is the perfect lunchtime indulgence. As I sipped my matcha latte, I noticed the barista's shirt had a cute ねこ (neko, or cat) graphic on it. It reminded me of the time I visited Tokyo and saw the famous 東京タワー (Tokyo Tower) at night, aglow with colorful lights. The world is full of unique and beautiful symbols, and Unicode makes it possible to express them all in one cohesive language."
-
-    plaintext = "Hello world"
-
     print()
     cli()
